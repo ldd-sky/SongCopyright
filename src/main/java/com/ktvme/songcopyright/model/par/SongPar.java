@@ -27,7 +27,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class SongDataPar implements Serializable {
+public class SongPar implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

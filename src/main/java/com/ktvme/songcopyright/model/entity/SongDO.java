@@ -28,14 +28,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Accessors(chain = true)
 @TableName(value = "song")
-public class SongDataDO implements Serializable {
+public class SongDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 唯一标识
      */
-    @TableField(value = "id")
     @TableId(type = IdType.AUTO)
     private Integer id;
 

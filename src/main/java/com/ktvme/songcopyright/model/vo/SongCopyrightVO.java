@@ -1,5 +1,6 @@
 package com.ktvme.songcopyright.model.vo;
 
+import com.ktvme.songcopyright.model.entity.SongCopyrightDO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -65,4 +66,17 @@ public class SongCopyrightVO implements Serializable {
      * 发行年份
      */
     private String year;
+
+    public static SongCopyrightVO convertSongCopyrightDo2Vo(SongCopyrightDO songCopyrightDO){
+        return SongCopyrightVO.builder()
+                .songTitle(songCopyrightDO.getSongTitle())
+                .artist(songCopyrightDO.getArtist())
+                .album(songCopyrightDO.getAlbum())
+                .recordCompany(songCopyrightDO.getRecordCompany())
+                .copyrightCompany(songCopyrightDO.getCopyrightCompany())
+                .distributionCompany(songCopyrightDO.getDistributionCompany())
+                .originalCompany(songCopyrightDO.getOriginalCompany())
+                .year(songCopyrightDO.getYear().toString())
+                .build();
+    }
 }

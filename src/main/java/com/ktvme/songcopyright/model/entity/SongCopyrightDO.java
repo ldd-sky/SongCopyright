@@ -36,7 +36,6 @@ public class SongCopyrightDO implements Serializable {
     /**
      * 唯一标识
      */
-    @TableField(value = "id")
     @TableId(type = IdType.AUTO)
     private Integer id;
 

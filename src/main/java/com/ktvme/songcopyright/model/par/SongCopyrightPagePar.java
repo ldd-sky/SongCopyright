@@ -8,11 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 
 import java.io.Serializable;
-import java.time.YearMonth;
 
 /**
  * <p>Description: 查询参数</p >
@@ -33,6 +31,12 @@ import java.time.YearMonth;
 public class SongCopyrightPagePar implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 歌曲名
+     */
+    @NotNull(message = "歌曲名不能为空")
+    private String songTitle;
 
     /**
      * 页码

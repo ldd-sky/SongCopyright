@@ -13,7 +13,7 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 
 /**
- * <p>Description: 歌曲表业务对象</p >
+ * <p>Description: 歌曲版权表业务对象</p >
  * <p>Copyright: Copyright (c)2024</p >
  * <p>Company: </p >
  * <P>Created Date: 2024年06月28日</P>
