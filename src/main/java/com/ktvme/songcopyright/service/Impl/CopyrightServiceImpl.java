@@ -10,7 +10,6 @@ import com.ktvme.songcopyright.model.ResultEnum;
 import com.ktvme.songcopyright.model.bo.SongBO;
 import com.ktvme.songcopyright.model.entity.SongCopyrightDO;
 import com.ktvme.songcopyright.model.entity.SongDO;
-import com.ktvme.songcopyright.model.par.SongCopyrightDetailPar;
 import com.ktvme.songcopyright.model.par.SongCopyrightPagePar;
 import com.ktvme.songcopyright.model.par.SongPar;
 import com.ktvme.songcopyright.model.par.SongImportPar;
@@ -116,11 +115,6 @@ public class CopyrightServiceImpl implements CopyrightService {
             throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "新增歌曲失败");
         }
         return Boolean.TRUE;
-    }
-
-    @Override
-    public boolean addSongCopyrightDetail(SongCopyrightDetailPar par) {
-        return false;
     }
 
     private LambdaQueryWrapper<SongCopyrightDO> buildQueryWrapper(SongCopyrightPagePar par) {

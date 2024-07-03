@@ -3,6 +3,7 @@ package com.ktvme.songcopyright.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ktvme.songcopyright.model.par.SongCopyrightPagePar;
 import com.ktvme.songcopyright.model.par.SongImportPar;
+import com.ktvme.songcopyright.model.par.SongPar;
 import com.ktvme.songcopyright.model.vo.SongCopyrightVO;
 import com.ktvme.songcopyright.service.CopyrightService;
 import jakarta.validation.Valid;
@@ -47,8 +48,18 @@ public class CopyrightController {
      * @param par 参数
      * @return {@link SongCopyrightVO}
      */
-    @GetMapping()
+    @GetMapping(path = "page-songCopyright")
     public IPage<SongCopyrightVO> pageSongCopyrightDetails(@Valid SongCopyrightPagePar par){
         return copyrightService.pageSongCopyrightResults(par);
+    }
+
+    /**
+     * 增加歌曲
+     * @param par 参数
+     * @return true-成功 false-失败
+     */
+    @PostMapping(path = "/add")
+    public boolean addSongData(@Valid SongPar par){
+        return copyrightService.addSongData(par);
     }
 }
