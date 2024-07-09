@@ -63,9 +63,9 @@ public class SongCopyrightVO implements Serializable {
     private String originalCompany;
 
     /**
-     * 发行年份
+     * 发行日期
      */
-    private String year;
+    private String date;
 
     public static SongCopyrightVO convertSongCopyrightDo2Vo(SongCopyrightDO songCopyrightDO){
         return SongCopyrightVO.builder()
@@ -76,7 +76,7 @@ public class SongCopyrightVO implements Serializable {
                 .copyrightCompany(songCopyrightDO.getCopyrightCompany())
                 .distributionCompany(songCopyrightDO.getDistributionCompany())
                 .originalCompany(songCopyrightDO.getOriginalCompany())
-                .year(songCopyrightDO.getYear().toString())
+                .date(songCopyrightDO.getDate().toString())
                 .build();
     }
 }

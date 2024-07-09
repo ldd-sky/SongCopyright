@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.time.LocalDateTime;
-import java.time.Year;
 
 /**
  * <p>Description: 表song_copyright</p >
@@ -84,8 +84,8 @@ public class SongCopyrightDO implements Serializable {
     /**
      * 发行年份
      */
-    @TableField(value = "year")
-    private Year year;
+    @TableField(value = "date")
+    private Date date;
 
     /**
      * 删除标记

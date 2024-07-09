@@ -9,8 +9,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
+import java.sql.Date;
 
 /**
  * <p>Description: 歌曲版权表业务对象</p >
@@ -74,11 +73,11 @@ public class SongCopyrightBO implements Serializable {
     /**
      * 发行年份
      */
-    private String year;
+    private String date;
 
-    public Year convertStrToYear(){
-        if (year == null) return null;
-        return Year.parse(year, DateTimeFormatter.ofPattern("yyyy"));
+    public Date convertStrToYear(String date){
+        if (date == null) return null;
+        return Date.valueOf(date);
     }
 
     public static SongCopyrightDO convertSongCopyrightBo2Do(SongCopyrightBO bo){
@@ -90,7 +89,7 @@ public class SongCopyrightBO implements Serializable {
                 .copyrightCompany(bo.copyrightCompany)
                 .distributionCompany(bo.distributionCompany)
                 .originalCompany(bo.originalCompany)
-                .year(bo.convertStrToYear())
+                .date(bo.convertStrToYear(bo.date))
                 .build();
     }
 }
