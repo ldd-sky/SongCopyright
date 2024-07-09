@@ -20,6 +20,7 @@ import com.ktvme.songcopyright.service.dao.SongService;
 import com.ktvme.songcopyright.utils.SongExcelUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +45,11 @@ public class CopyrightServiceImpl implements CopyrightService {
 
     private final SongService songService;
     private final SongCopyrightService songCopyrightService;
+    private final RocketMQTemplate rocketMQTemplate;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleSongExcel(SongImportPar par) {
+    public boolean handleSongExcel(SongImportPar par){
         log.info("[INF] -----> start analysis song excel:{}", par);
         SongExcelUtil.doRead(par.getExcelFile());
 
@@ -57,7 +59,6 @@ public class CopyrightServiceImpl implements CopyrightService {
         List<SongBO> songList = new ArrayList<>(new HashSet<>(songListOri));
         // 去除和数据库中重复的歌曲_歌手组合
         List<SongDO> nonDuplicateList = new ArrayList<>();
-
         for (SongBO song : songList) {
             QueryWrapper<SongDO> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("song_title", song.getSongTitle())
@@ -78,6 +79,12 @@ public class CopyrightServiceImpl implements CopyrightService {
         if (!success){
             throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "保存歌曲数据失败");
         }
+
+        for (SongDO song: nonDuplicateList){
+            rocketMQTemplate.convertAndSend("song-topic", song);
+            log.info("[INF] ---> {} has send success", song);
+        }
+
         return Boolean.TRUE;
     }
 
@@ -119,7 +126,7 @@ public class CopyrightServiceImpl implements CopyrightService {
 
     private LambdaQueryWrapper<SongCopyrightDO> buildQueryWrapper(SongCopyrightPagePar par) {
         LambdaQueryWrapper<SongCopyrightDO> wrapper = Wrappers.<SongCopyrightDO>query().lambda()
-                .eq(SongCopyrightDO::getSongTitle, par.getSongTitle());
+                .like(SongCopyrightDO::getSongTitle, "%" + par.getSongTitle() + "%");
 
         wrapper.orderByAsc(SongCopyrightDO::getDate);
         return wrapper;

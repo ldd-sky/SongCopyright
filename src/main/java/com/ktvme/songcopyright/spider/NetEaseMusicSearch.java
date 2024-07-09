@@ -4,13 +4,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.ktvme.songcopyright.exception.BusinessException;
+import com.ktvme.songcopyright.model.ResultEnum;
+import com.ktvme.songcopyright.model.entity.SongCopyrightDO;
+import com.ktvme.songcopyright.model.entity.SongDO;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>Description: 调用python接口查询网易云音乐信息</p >
@@ -57,15 +64,16 @@ public class NetEaseMusicSearch {
         return null;
     }
 
-//    public SongCopyrightDO
+    public static List<SongCopyrightDO> searchCopyrightFromNetEaseMusic(SongDO songDO) {
+        String title = songDO.getSongTitle();
+        JsonObject songObjects = searchCopyrightFrom163(title);
+        if (songObjects == null) {
+            throw new BusinessException(ResultEnum.FILE.getCode(), "网易云没有" + title + "这首歌");
+        }
 
-
-    public static void main(String[] args) {
-        JsonObject a = searchCopyrightFrom163("吹梦到西洲");
-        // 解析result对象
-        assert a != null;
-        JsonObject result = a.getAsJsonObject("result");
+        JsonObject result = songObjects.getAsJsonObject("result");
         JsonArray songs = result.getAsJsonArray("songs");
+        List<SongCopyrightDO> res = new ArrayList<>();
 
         // 遍历songs数组并提取所需信息
         for (JsonElement songElement : songs) {
@@ -88,7 +96,9 @@ public class NetEaseMusicSearch {
             // 获取专辑名字
             JsonObject album = song.getAsJsonObject("album");
             String albumName = album.get("name").getAsString();
-
+            if (albumName == null) {
+                albumName = "";
+            }
             // 获取专辑的公司
             String company = album.get("company").getAsString();
 
@@ -96,10 +106,16 @@ public class NetEaseMusicSearch {
             long publishTimeMillis = album.get("publishTime").getAsLong();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String publishDateFormatted = sdf.format(new java.util.Date(publishTimeMillis));
-            System.out.println("Publish Time: " + publishDateFormatted);
 
-            System.out.println("Song Name: " + songName + " Artists: " + artistNames.toString() + " Album Name: " + albumName + " Company: " + company);
+            res.add(SongCopyrightDO.builder()
+                    .songTitle(songName)
+                    .artist(artistNames.toString())
+                    .album(albumName)
+                    .originalCompany(company)
+                    .date(Date.valueOf(publishDateFormatted))
+                    .build());
         }
+        return res;
     }
 }
 
