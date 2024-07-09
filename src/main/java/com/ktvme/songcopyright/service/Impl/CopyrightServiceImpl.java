@@ -121,7 +121,7 @@ public class CopyrightServiceImpl implements CopyrightService {
         LambdaQueryWrapper<SongCopyrightDO> wrapper = Wrappers.<SongCopyrightDO>query().lambda()
                 .eq(SongCopyrightDO::getSongTitle, par.getSongTitle());
 
-        wrapper.orderByAsc(SongCopyrightDO::getYear);
+        wrapper.orderByAsc(SongCopyrightDO::getDate);
         return wrapper;
     }
 }
