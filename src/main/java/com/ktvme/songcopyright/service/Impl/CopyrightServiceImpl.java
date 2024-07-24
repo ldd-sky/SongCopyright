@@ -17,6 +17,7 @@ import com.ktvme.songcopyright.model.vo.SongCopyrightVO;
 import com.ktvme.songcopyright.service.CopyrightService;
 import com.ktvme.songcopyright.service.dao.SongCopyrightService;
 import com.ktvme.songcopyright.service.dao.SongService;
+import com.ktvme.songcopyright.spider.MusicSearch;
 import com.ktvme.songcopyright.utils.SongExcelUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +25,7 @@ import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -92,10 +91,19 @@ public class CopyrightServiceImpl implements CopyrightService {
     public IPage<SongCopyrightVO> pageSongCopyrightResults(SongCopyrightPagePar par) {
         log.info("[INF] ----> 获取分页歌曲版权数据参数: {}", par);
 
+        if (par.getSongTitle().isEmpty()){
+            return new Page<>(par.getCurrent(), par.getSize(), 0);
+        }
+
         IPage<SongCopyrightDO> page = songCopyrightService.page(
                 new Page<>(par.getCurrent(), par.getSize()),
                 buildQueryWrapper(par)
         );
+
+        // 如果搜索结果为空，则返回特殊状态
+        if (page.getRecords().isEmpty()){
+            return new Page<>(par.getCurrent(), page.getSize(), -1);
+        }
 
         IPage<SongCopyrightVO> res = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         res.setRecords(
@@ -122,6 +130,46 @@ public class CopyrightServiceImpl implements CopyrightService {
             throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "新增歌曲失败");
         }
         return Boolean.TRUE;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public IPage<SongCopyrightVO> pageSongCopyrightSearchResults(SongCopyrightPagePar par) {
+        SongDO songDO = SongDO.builder()
+                .songTitle(par.getSongTitle())
+                .artist("")
+                .build();
+        List<SongCopyrightDO> songCopyrightWYY = MusicSearch.searchCopyrightFromWYY(songDO);
+        List<SongCopyrightDO> songCopyrightQQ = MusicSearch.searchCopyrightFromQQ(songDO, 1, 10);
+        // 去重
+        List<SongCopyrightDO> mergedList = new ArrayList<>();
+        if (songCopyrightWYY != null) mergedList.addAll(songCopyrightWYY);
+        if (songCopyrightQQ != null) mergedList.addAll(songCopyrightQQ);
+        if (mergedList.isEmpty()){
+            log.info("[INF] ---> 搜索不到该歌曲的信息: {}", songDO.getSongTitle());
+            return new Page<>(par.getCurrent(), par.getSize(), 0);
+        }
+        // 按照 songTitle 排序并根据 songTitle、artist 和 company 进行去重
+        List<SongCopyrightDO> saveList = mergedList.stream()
+                .sorted(Comparator.comparing(SongCopyrightDO::getSongTitle))
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toCollection(() ->
+                                new TreeSet<>(Comparator.comparing(
+                                        song -> song.getSongTitle() + song.getArtist() + song.getOriginalCompany()))),
+                        ArrayList::new));
+        boolean success = songCopyrightService.saveBatch(saveList);
+        log.info("[INF] ---> songCopyRight save res: {}", success);
+
+        if (!success){
+            throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "保存歌曲版权数据失败");
+        }
+
+        IPage<SongCopyrightVO> res = new Page<>(par.getCurrent(), par.getSize(), saveList.size());
+        res.setRecords(
+                saveList.stream().map(SongCopyrightVO::convertSongCopyrightDo2Vo)
+                        .collect(Collectors.toList())
+        );
+        return res;
     }
 
     private LambdaQueryWrapper<SongCopyrightDO> buildQueryWrapper(SongCopyrightPagePar par) {

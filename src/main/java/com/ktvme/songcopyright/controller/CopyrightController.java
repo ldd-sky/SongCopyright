@@ -62,4 +62,14 @@ public class CopyrightController {
     public boolean addSongData(@Valid SongPar par){
         return copyrightService.addSongData(par);
     }
+
+    /**
+     * 在线搜索没有的歌曲版权信息
+     * @param par   参数
+     * @return      {@link SongCopyrightVO}
+     */
+    @GetMapping(path = "page-songCopyrightSearch")
+    public IPage<SongCopyrightVO> pageSongCopyrightSearchDetails(@Valid SongCopyrightPagePar par){
+        return copyrightService.pageSongCopyrightSearchResults(par);
+    }
 }

@@ -13,6 +13,8 @@ import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -30,15 +32,33 @@ import java.util.stream.Collectors;
 @RocketMQMessageListener(topic = "song-topic", consumerGroup = "song_consumer_group")
 public class SongConsumerService implements RocketMQListener<SongDO> {
     private final SongCopyrightService songCopyrightService;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     @Override
     public void onMessage(SongDO songDO) {
-        // 睡眠2s，防止ip封禁
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (songDO == null){
+            log.info("[WARN] ---> SongDO为空");
+            return;
+        }
+        if (songDO.getSongTitle() == null){
+            log.info("[WARN] ---> 歌曲名为空");
+            return;
         }
 
+        scheduler.execute(() -> {
+            try {
+                processMessage(songDO);
+            } finally {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+    }
+
+    private void processMessage(SongDO songDO) {
         List<SongCopyrightDO> songCopyrightWYY = MusicSearch.searchCopyrightFromWYY(songDO);
         List<SongCopyrightDO> songCopyrightQQ = MusicSearch.searchCopyrightFromQQ(songDO, 1, 10);
         // 去重
@@ -64,7 +84,5 @@ public class SongConsumerService implements RocketMQListener<SongDO> {
         if (!success){
             throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "保存歌曲版权数据失败");
         }
-
-
     }
 }

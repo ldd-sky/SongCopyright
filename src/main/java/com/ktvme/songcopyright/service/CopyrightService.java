@@ -37,4 +37,11 @@ public interface CopyrightService {
      * @return      true-成功 false-失败
      */
     boolean addSongData(SongPar par);
+
+    /**
+     * 分页返回歌曲版权在线查询结果并入库
+     * @param par   参数
+     * @return      {@link SongCopyrightVO}
+     */
+    IPage<SongCopyrightVO> pageSongCopyrightSearchResults(SongCopyrightPagePar par);
 }
