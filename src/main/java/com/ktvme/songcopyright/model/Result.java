@@ -2,6 +2,9 @@ package com.ktvme.songcopyright.model;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * <p>Description: 全局统一返回结果类</p >
  * <p>Copyright: Copyright (c)2024</p >
@@ -73,5 +76,18 @@ public class Result<T> {
 
     public boolean isSuccess() {
         return code.equals(ResultEnum.SUCCESS.getCode());
+    }
+
+    @SuppressWarnings("unchecked")
+    public Result<T> append(String key, Object value) {
+        if (this.data instanceof Map) {
+            ((Map<String, Object>) this.data).put(key, value);
+        } else {
+            Map<String, Object> map = new HashMap<>();
+            map.put(key, value);
+            map.put("data", this.data);
+            this.data = (T) map;
+        }
+        return this;
     }
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ktvme.songcopyright.exception.BusinessException;
+import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.ResultEnum;
 import com.ktvme.songcopyright.model.bo.SongBO;
 import com.ktvme.songcopyright.model.entity.SongCopyrightDO;
@@ -48,7 +49,7 @@ public class CopyrightServiceImpl implements CopyrightService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean handleSongExcel(SongImportPar par){
+    public Result handleSongExcel(SongImportPar par){
         log.info("[INF] -----> start analysis song excel:{}", par);
         SongExcelUtil.doRead(par.getExcelFile());
 
@@ -84,7 +85,7 @@ public class CopyrightServiceImpl implements CopyrightService {
             log.info("[INF] ---> {} has send success", song);
         }
 
-        return Boolean.TRUE;
+        return Result.success();
     }
 
     @Override
@@ -115,7 +116,7 @@ public class CopyrightServiceImpl implements CopyrightService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addSongData(SongPar par) {
+    public Result addSongData(SongPar par) {
         log.info("[INF] ----> 新增歌曲: {}", par);
 
         SongDO songDo = SongDO.builder()
@@ -129,7 +130,7 @@ public class CopyrightServiceImpl implements CopyrightService {
         if (!success){
             throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "新增歌曲失败");
         }
-        return Boolean.TRUE;
+        return Result.success();
     }
 
     @Override

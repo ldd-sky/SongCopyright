@@ -1,6 +1,7 @@
 package com.ktvme.songcopyright.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.par.SongCopyrightPagePar;
 import com.ktvme.songcopyright.model.par.SongPar;
 import com.ktvme.songcopyright.model.par.SongImportPar;
@@ -22,7 +23,7 @@ public interface CopyrightService {
      * @param par   参数
      * @return      true-成功 false-失败
      */
-    boolean handleSongExcel(SongImportPar par);
+    Result handleSongExcel(SongImportPar par);
 
     /**
      * 分页获取版权信息查询结果
@@ -36,7 +37,7 @@ public interface CopyrightService {
      * @param par   参数
      * @return      true-成功 false-失败
      */
-    boolean addSongData(SongPar par);
+    Result addSongData(SongPar par);
 
     /**
      * 分页返回歌曲版权在线查询结果并入库

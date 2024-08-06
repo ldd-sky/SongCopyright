@@ -1,6 +1,7 @@
 package com.ktvme.songcopyright.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.par.SongCopyrightPagePar;
 import com.ktvme.songcopyright.model.par.SongImportPar;
 import com.ktvme.songcopyright.model.par.SongPar;
@@ -39,7 +40,7 @@ public class CopyrightController {
      * @return true-成功 false-失败
      */
     @PostMapping(path = "/handle-excel-song")
-    public boolean handleExcelSongData(@Valid SongImportPar par){
+    public Result handleExcelSongData(@Valid SongImportPar par){
         return copyrightService.handleSongExcel(par);
     }
 
@@ -59,7 +60,7 @@ public class CopyrightController {
      * @return true-成功 false-失败
      */
     @PostMapping(path = "/add")
-    public boolean addSongData(@Valid SongPar par){
+    public Result addSongData(@Valid SongPar par){
         return copyrightService.addSongData(par);
     }
 

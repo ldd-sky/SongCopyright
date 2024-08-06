@@ -1,4 +1,4 @@
-package com.ktvme.songcopyright.service;
+package com.ktvme.songcopyright.listener;
 
 import com.ktvme.songcopyright.exception.BusinessException;
 import com.ktvme.songcopyright.model.ResultEnum;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 @RocketMQMessageListener(topic = "song-topic", consumerGroup = "song_consumer_group")
-public class SongConsumerService implements RocketMQListener<SongDO> {
+public class SongListener implements RocketMQListener<SongDO> {
     private final SongCopyrightService songCopyrightService;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
