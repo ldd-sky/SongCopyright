@@ -2,7 +2,8 @@ package com.ktvme.songcopyright.controller;
 
 import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.par.LoginPar;
-import com.ktvme.songcopyright.model.par.UserPar;
+import com.ktvme.songcopyright.model.par.UserEmailPar;
+import com.ktvme.songcopyright.model.par.UserRegPar;
 import com.ktvme.songcopyright.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -43,8 +44,8 @@ public class UserController {
     }
 
     @PostMapping("/send-email")
-    public Result sendEmail(UserPar userPar) {
-        return userService.sendEmail(userPar);
+    public Result sendEmail(UserEmailPar userEmailPar) {
+        return userService.sendEmail(userEmailPar);
     }
 
     @GetMapping("/info")
@@ -62,5 +63,10 @@ public class UserController {
             map.put("introduction", "None");
         }
         return Result.success(map);
+    }
+
+    @PostMapping("/register")
+    public Result register(HttpServletRequest request, UserRegPar userRegPar){
+        return userService.register(request, userRegPar);
     }
 }

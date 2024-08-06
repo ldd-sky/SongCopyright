@@ -186,6 +186,27 @@
             <artifactId>commons-csv</artifactId>
             <version>1.9.0</version>
         </dependency>
+
+        <!--JavaBean工具类，用于JavaBean数据封装-->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+        <!--jwt工具-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+
+        <!--joda 时间工具类 -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.10</version>
+        </dependency>
+
     </dependencies>
 
 

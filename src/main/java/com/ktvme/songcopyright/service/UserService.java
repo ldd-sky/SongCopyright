@@ -2,7 +2,8 @@ package com.ktvme.songcopyright.service;
 
 import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.par.LoginPar;
-import com.ktvme.songcopyright.model.par.UserPar;
+import com.ktvme.songcopyright.model.par.UserEmailPar;
+import com.ktvme.songcopyright.model.par.UserRegPar;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,5 +25,10 @@ public interface UserService {
     /**
      * 发送邮件验证码
      */
-    Result sendEmail(UserPar userPar);
+    Result sendEmail(UserEmailPar userEmailPar);
+
+    /**
+     * 注册
+     */
+    Result register(HttpServletRequest request, UserRegPar userRegPar);
 }

@@ -1,13 +1,15 @@
 package com.ktvme.songcopyright.service.Impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ktvme.songcopyright.exception.BusinessException;
 import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.ResultEnum;
 import com.ktvme.songcopyright.model.entity.UserDO;
 import com.ktvme.songcopyright.model.par.LoginPar;
-import com.ktvme.songcopyright.model.par.UserPar;
+import com.ktvme.songcopyright.model.par.UserEmailPar;
+import com.ktvme.songcopyright.model.par.UserRegPar;
 import com.ktvme.songcopyright.model.vo.UserEmail;
 import com.ktvme.songcopyright.service.UserService;
 import com.ktvme.songcopyright.service.dao.UserDOService;
@@ -89,14 +91,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result sendEmail(UserPar userPar) {
+    public Result sendEmail(UserEmailPar userEmailPar) {
         int num = RandomUtils.nextInt(1000, 10000);
 
         // 封装发送邮件的数据
         UserEmail userEmail = UserEmail.builder()
-                .email(userPar.getEmail())
+                .email(userEmailPar.getEmail())
                 .title("用户登录验证码")
-                .text(userPar.getUsername() + "您好，本次验证码为：" + num)
+                .text(userEmailPar.getUsername() + "您好，本次验证码为：" + num)
                 .build();
 
         // mq存放
@@ -104,9 +106,54 @@ public class UserServiceImpl implements UserService {
         rocketMQTemplate.convertAndSend("email-topic", userEmailStr);
 
         // redis存放
-        String redisName = "login_verify_code_" + userPar.getUsername();
+        String redisName = "login_verify_code_" + userEmailPar.getUsername();
         stringRedisTemplate.opsForValue().set(redisName, num + "");
 
         return Result.success("验证码发送成功！");
+    }
+
+    @Override
+    public Result register(HttpServletRequest request, UserRegPar userRegPar) {
+        // 校验验证码
+        String redisVerifyCode = stringRedisTemplate.opsForValue().get("register" + userRegPar.getUsername());
+        stringRedisTemplate.delete("register" + userRegPar.getUsername());
+        if (redisVerifyCode == null) {
+            return Result.failed("验证码无效");
+        }
+        if (!redisVerifyCode.equalsIgnoreCase(userRegPar.getVerifycode())) {
+            return Result.failed("验证码错误");
+        }
+
+        // 密码校验
+        if (userRegPar.getPassword() == null) {
+            return Result.failed("密码不能为空");
+        }
+        if (!userRegPar.getPassword().equals(userRegPar.getRepassword())) {
+            return Result.failed("密码和确认密码不一致");
+        }
+
+        // 注册
+        QueryWrapper<UserDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_name", userRegPar.getUsername());
+        UserDO findUser = userDOService.getBaseMapper().selectOne(queryWrapper);
+        if (findUser != null) {
+            return Result.success("用户名已存在");
+        }
+
+        UserDO saveUser = UserDO.builder()
+                .userName(userRegPar.getUsername())
+                .realName(userRegPar.getRealname())
+                .phone(userRegPar.getPhone())
+                .password(userRegPar.getPassword())
+                .email(userRegPar.getEmail())
+                .ip(IPUtils.getIpAddr(request))
+                .build();
+        boolean success = userDOService.save(saveUser);
+
+        if (success) {
+            return Result.success("注册成功");
+        }
+
+        return Result.success("注册失败");
     }
 }

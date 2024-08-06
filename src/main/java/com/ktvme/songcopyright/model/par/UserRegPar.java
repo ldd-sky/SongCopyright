@@ -9,13 +9,11 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.validation.annotation.Validated;
 
-import java.io.Serializable;
-
 /**
- * <p>Description: todo</p >
+ * <p>Description: 用户注册前端传参</p >
  * <p>Copyright: Copyright (c)2024</p >
- * <p>Company: todo</p >
- * <P>Created Date: 2024年08月05日</P>
+ * <p>Company: </p >
+ * <P>Created Date: 2024年08月06日</P>
  *
  * @author LiuYuHan
  * @version 1.0
@@ -27,24 +25,14 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class UserPar implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class UserRegPar {
 
-    /**
-     * 用户名
-     */
-    @NotBlank(message = "用户名不能为空")
     private String username;
-
-    /**
-     * 密码
-     */
-    @NotBlank(message = "密码不能为空")
+    private String realname;
     private String password;
-
-    /**
-     * 邮箱
-     */
-    @NotBlank(message = "")
     private String email;
+    private String phone;
+    private String roles;
+    private String verifycode;
+    private String repassword;
 }
