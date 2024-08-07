@@ -7,6 +7,8 @@ import com.ktvme.songcopyright.model.par.SongPar;
 import com.ktvme.songcopyright.model.par.SongImportPar;
 import com.ktvme.songcopyright.model.vo.SongCopyrightVO;
 
+import java.util.Map;
+
 /**
  * <p>Description: 版权查询业务操作接口</p >
  * <p>Copyright: Copyright (c)2024</p >
@@ -45,4 +47,10 @@ public interface CopyrightService {
      * @return      {@link SongCopyrightVO}
      */
     IPage<SongCopyrightVO> pageSongCopyrightSearchResults(SongCopyrightPagePar par);
+
+    /**
+     * 获取歌曲以及歌曲版权数量
+     * @return      数量
+     */
+    Result<Map<String, Integer>> getCount();
 }

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 /**
  * <p>Description: 版权控制器</p >
  * <p>Copyright: Copyright (c)2024</p >
@@ -72,5 +74,10 @@ public class CopyrightController {
     @GetMapping(path = "page-songCopyrightSearch")
     public IPage<SongCopyrightVO> pageSongCopyrightSearchDetails(@Valid SongCopyrightPagePar par){
         return copyrightService.pageSongCopyrightSearchResults(par);
+    }
+
+    @GetMapping(path = "get-count")
+    public Result<Map<String, Integer>> getCount(){
+        return copyrightService.getCount();
     }
 }

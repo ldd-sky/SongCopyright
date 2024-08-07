@@ -173,6 +173,34 @@ public class CopyrightServiceImpl implements CopyrightService {
         return res;
     }
 
+    @Override
+    public Result<Map<String, Integer>> getCount() {
+        int songCount = songService.count();
+        int songCopyrightCount = songCopyrightService.count();
+        // 查询歌手数量和专辑数量
+        List<SongCopyrightDO> copyrights = songCopyrightService.list(new QueryWrapper<SongCopyrightDO>().select("artist", "album"));
+        Set<String> uniqueArtists = new HashSet<>();
+        Set<String> uniqueAlbums = new HashSet<>();
+
+        for (SongCopyrightDO copyright: copyrights) {
+            String[] individualArtists = copyright.getArtist().split("/");
+            uniqueAlbums.add(copyright.getAlbum());
+            for (String individualArtist : individualArtists) {
+                uniqueArtists.add(individualArtist.trim());
+            }
+        }
+        int artistCount = uniqueArtists.size();
+        int albumCount = uniqueAlbums.size();
+
+        Map<String, Integer> countMap = new HashMap<>();
+        countMap.put("songCount", songCount);
+        countMap.put("songCopyrightCount", songCopyrightCount);
+        countMap.put("artistCount", artistCount);
+        countMap.put("albumCount", albumCount);
+
+        return Result.success(countMap);
+    }
+
     private LambdaQueryWrapper<SongCopyrightDO> buildQueryWrapper(SongCopyrightPagePar par) {
         LambdaQueryWrapper<SongCopyrightDO> wrapper = Wrappers.<SongCopyrightDO>query().lambda()
                 .like(SongCopyrightDO::getSongTitle, "%" + par.getSongTitle() + "%");
