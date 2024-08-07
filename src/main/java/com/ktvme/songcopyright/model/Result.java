@@ -17,13 +17,13 @@ import java.util.Map;
 @Data
 public class Result<T> {
     private Integer code;
-    private String msg;
+    private String message;
     private T data;
     private boolean success;
 
-    public Result(Integer code, String msg, T data) {
+    public Result(Integer code, String message, T data) {
         this.code = code;
-        this.msg = msg;
+        this.message = message;
         this.data = data;
     }
 
@@ -69,7 +69,7 @@ public class Result<T> {
     public static <T> Result<T> instance(Integer code, String message, T data) {
         Result<T> result = new Result<>();
         result.setCode(code);
-        result.setMsg(message);
+        result.setMessage(message);
         result.setData(data);
         return result;
     }

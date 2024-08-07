@@ -10,9 +10,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>Description: todo</p >
+ * <p>Description: 用户业务对象</p >
  * <p>Copyright: Copyright (c)2024</p >
- * <p>Company: todo</p >
+ * <p>Company: </p >
  * <P>Created Date: 2024年08月05日</P>
  *
  * @author LiuYuHan
@@ -42,17 +42,17 @@ public class LoginUserVO implements Serializable {
     private String realName;
 
     /**
-     * 上次登录ip地址
+     * 角色
      */
-    private String lastIp;
+    private String roles;
 
     /**
-     * 上次登录时间
+     * 邮箱
      */
-    private LocalDateTime lastLoginTime;
+    private String email;
 
     /**
-     * 角色编号
+     * 电话
      */
-    private Integer roleId;
+    private String phone;
 }

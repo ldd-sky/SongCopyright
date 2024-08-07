@@ -3,6 +3,8 @@ package com.ktvme.songcopyright.service.Impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ktvme.songcopyright.config.JwtConfig;
 import com.ktvme.songcopyright.exception.BusinessException;
 import com.ktvme.songcopyright.model.Result;
 import com.ktvme.songcopyright.model.ResultEnum;
@@ -10,10 +12,12 @@ import com.ktvme.songcopyright.model.entity.UserDO;
 import com.ktvme.songcopyright.model.par.LoginPar;
 import com.ktvme.songcopyright.model.par.UserEmailPar;
 import com.ktvme.songcopyright.model.par.UserRegPar;
+import com.ktvme.songcopyright.model.vo.LoginUserVO;
 import com.ktvme.songcopyright.model.vo.UserEmail;
 import com.ktvme.songcopyright.service.UserService;
 import com.ktvme.songcopyright.service.dao.UserDOService;
 import com.ktvme.songcopyright.utils.IPUtils;
+import com.ktvme.songcopyright.utils.JwtUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
@@ -23,6 +27,9 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>Description: 用户业务接口实现</p >
@@ -39,13 +46,27 @@ import java.time.LocalDateTime;
 public class UserServiceImpl implements UserService {
     private final UserDOService userDOService;
     private final RocketMQTemplate rocketMQTemplate;
-    private StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final JwtConfig jwtConfig;
 
     @Override
     public Result login(HttpServletRequest request, LoginPar par) {
         // 测试数据
         if (par.getUsername().equals("lyh") && par.getPassword().equals("123456")) {
-            return Result.success("登陆成功").append("token", "admin-token");
+            UserDO user = userDOService.getOne(
+                    Wrappers.<UserDO>query().lambda()
+                            .eq(UserDO::getUserName, par.getUsername())
+            );
+            LoginUserVO userVO = LoginUserVO.builder()
+                    .userName(user.getUserName())
+                    .id(user.getId())
+                    .realName(user.getRealName())
+                    .roles(user.getRoles())
+                    .email(user.getEmail())
+                    .phone(user.getPhone())
+                    .build();
+            String token = JwtUtil.generateToken(userVO, jwtConfig.getExpire(), jwtConfig.getPrivateKey());
+            return Result.success("登陆成功").append("token", token);
         }
         // 校验验证码
         String redisName = "login_verify_code_" + par.getUsername();
@@ -85,7 +106,15 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ResultEnum.COMMON_FAILED.getCode(), "登录异常");
         }
 
-        String token = "admin-token";
+        LoginUserVO userVO = LoginUserVO.builder()
+                .userName(user.getUserName())
+                .id(user.getId())
+                .realName(user.getRealName())
+                .roles(user.getRoles())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .build();
+        String token = JwtUtil.generateToken(userVO, jwtConfig.getExpire(), jwtConfig.getPrivateKey());
         return Result.success("登陆成功").append("token", token);
 
     }
@@ -155,5 +184,27 @@ public class UserServiceImpl implements UserService {
         }
 
         return Result.success("注册失败");
+    }
+
+    @Override
+    public Result info(String token) {
+        try {
+            // 通过token获取user信息
+            LoginUserVO user = JwtUtil.getObjectFromToken(token, jwtConfig.getPublicKey(), LoginUserVO.class);
+
+            Map<String, Object> map = new HashMap<>();
+            assert user != null;
+            if (user.getRoles() != null) {
+                map.put("roles", user.getRoles().split(","));        //角色的值必须是数组
+            } else {
+                map.put("roles", Collections.singletonList("editor"));        //没有权限的固定：editor
+            }
+            // TODO 完善用户头像
+            map.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+            map.put("name", user.getUserName());
+            return Result.success("获得权限成功", map);
+        } catch (Exception e) {
+            return Result.failed("获得权限失败");
+        }
     }
 }

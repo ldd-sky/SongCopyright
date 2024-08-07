@@ -8,10 +8,8 @@ import com.ktvme.songcopyright.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import sun.lwawt.macosx.CSystemTray;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -50,23 +48,16 @@ public class UserController {
 
     @GetMapping("/info")
     public Result info(String token) {
-        Map<String, Object> map = new HashMap<>();
-        if ("admin-token".equals(token)){
-            map.put("roles", Collections.singletonList("admin"));
-            map.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
-            map.put("name", "Super Admin");
-            map.put("introduction", "None");
-        } else{
-            map.put("roles", Collections.singletonList("editor"));
-            map.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
-            map.put("name", "Normal Editor");
-            map.put("introduction", "None");
-        }
-        return Result.success(map);
+        return userService.info(token);
     }
 
     @PostMapping("/register")
     public Result register(HttpServletRequest request, UserRegPar userRegPar){
         return userService.register(request, userRegPar);
+    }
+
+    @PostMapping("/logout/{token}")
+    public Result logout(@PathVariable("token") String token){
+        return Result.success("退出登录");
     }
 }

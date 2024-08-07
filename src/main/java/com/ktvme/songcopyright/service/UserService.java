@@ -31,4 +31,9 @@ public interface UserService {
      * 注册
      */
     Result register(HttpServletRequest request, UserRegPar userRegPar);
+
+    /**
+     * 通过token获取用户信息
+     */
+    Result info(String token);
 }

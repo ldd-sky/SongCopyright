@@ -80,10 +80,10 @@ public class UserDO implements Serializable {
     private LocalDateTime loginTime;
 
     /**
-     * 角色编号
+     * 角色
      */
-    @TableField(value = "role_id")
-    private Integer roleId;
+    @TableField(value = "roles")
+    private String roles;
 
     /**
      * 数据创建时间
