@@ -1,6 +1,7 @@
 import requests
 import sys
-
+import urllib3
+urllib3.disable_warnings()
 
 def search_qq_music(title, current, nums):
     url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'

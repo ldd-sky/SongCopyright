@@ -1,5 +1,7 @@
 import requests
 import sys
+import urllib3
+urllib3.disable_warnings()
 
 
 def get_album_details(albummid):
