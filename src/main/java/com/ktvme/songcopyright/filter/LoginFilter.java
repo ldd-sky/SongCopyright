@@ -3,7 +3,6 @@ package com.ktvme.songcopyright.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktvme.songcopyright.config.FilterConfig;
 import com.ktvme.songcopyright.config.JwtConfig;
-import com.ktvme.songcopyright.model.entity.UserDO;
 import com.ktvme.songcopyright.model.vo.LoginUserVO;
 import com.ktvme.songcopyright.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +37,9 @@ public class LoginFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException {
         try {
-            // 1. 获取请求路径
             String path = request.getRequestURI();
             System.out.println("拦截路径：" + path);
 
-            // 2. 白名单校验
             List<String> allowPaths = filterConfig.getAllowPaths();
             for (String allowPath : allowPaths) {
                 if (path.contains(allowPath)) {
@@ -52,23 +49,28 @@ public class LoginFilter extends OncePerRequestFilter {
                 }
             }
 
-            // 3. 获取 token
             String token = request.getHeader("X-Token");
 
-            // 4. 校验 token
-            JwtUtil.getObjectFromToken(token, jwtConfig.getPublicKey(), LoginUserVO.class);
+            // 解析并验证 token
+            LoginUserVO user = JwtUtil.getObjectFromToken(token, jwtConfig.getPublicKey(), LoginUserVO.class);
 
-            // 5. 校验成功，放行
+            if (user == null || !user.getRoles().contains("admin")) {
+                // Token 无效或解析失败，返回 401
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                response.getWriter().write(new ObjectMapper().writeValueAsString("没有权限"));
+                return;
+            }
+            System.out.println("拥有权限，放行：" + path);
+            // Token 验证成功，放行请求
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            // 5.2 失败，返回提示`token失效`
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-
-            // 响应“没有权限”提示
             response.getWriter().write(new ObjectMapper().writeValueAsString("没有权限"));
         }
     }
