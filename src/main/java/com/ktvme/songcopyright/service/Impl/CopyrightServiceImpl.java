@@ -202,9 +202,14 @@ public class CopyrightServiceImpl implements CopyrightService {
     }
 
     private LambdaQueryWrapper<SongCopyrightDO> buildQueryWrapper(SongCopyrightPagePar par) {
-        LambdaQueryWrapper<SongCopyrightDO> wrapper = Wrappers.<SongCopyrightDO>query().lambda()
-                .like(SongCopyrightDO::getSongTitle, "%" + par.getSongTitle() + "%");
-
+        LambdaQueryWrapper<SongCopyrightDO> wrapper = Wrappers.lambdaQuery();
+        if (par.getSongTitle() != null && par.getSongTitle().contains("-")) {
+            String[] titleAndArtist = par.getSongTitle().split("-", 2);  // 仅分割为两个部分
+            wrapper.like(SongCopyrightDO::getSongTitle, titleAndArtist[0].trim())
+                    .like(SongCopyrightDO::getArtist, titleAndArtist[1].trim());
+        } else {
+            wrapper.like(SongCopyrightDO::getSongTitle, par.getSongTitle());
+        }
         wrapper.orderByAsc(SongCopyrightDO::getDate);
         return wrapper;
     }
